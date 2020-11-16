@@ -1,78 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- Ensures optimal rendering on mobile devices. -->
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" /> <!-- Optimal Internet Explorer compatibility -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Ensures optimal rendering on mobile devices. -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" /> <!-- Optimal Internet Explorer compatibility -->
 
     <script
-    src="https://www.paypal.com/sdk/js?client-id=AQWNmWa6o2XRTOWRFVjPyEGF1QozzWspHggUYPneI2cw7JtpNA0CKZ4ezB-NS2zwxhH9hev8L0ft-x7q"> // Required. Replace SB_CLIENT_ID with your sandbox client ID.
-  </script>
-  <script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-app.js"></script>
+        src="https://www.paypal.com/sdk/js?client-id=AQWNmWa6o2XRTOWRFVjPyEGF1QozzWspHggUYPneI2cw7JtpNA0CKZ4ezB-NS2zwxhH9hev8L0ft-x7q"> // Required. Replace SB_CLIENT_ID with your sandbox client ID.
+        </script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-app.js"></script>
 
-  <!-- TODO: Add SDKs for Firebase products that you want to use
+    <!-- TODO: Add SDKs for Firebase products that you want to use
        https://firebase.google.com/docs/web/setup#available-libraries -->
-  <script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-analytics.js"></script>
-  
-  <script>
-    // Your web app's Firebase configuration
-    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    var firebaseConfig = {
-      apiKey: "AIzaSyBp8cvqCVZ9ALRQKOdsqEar6pzQxdCZLdQ",
-      authDomain: "player-latino-f9faa.firebaseapp.com",
-      databaseURL: "https://player-latino-f9faa.firebaseio.com",
-      projectId: "player-latino-f9faa",
-      storageBucket: "player-latino-f9faa.appspot.com",
-      messagingSenderId: "945439559768",
-      appId: "1:945439559768:web:b598d7b2ae444dd694ba2d",
-      measurementId: "G-SG6WBH3EDW"
-    };
-    // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    firebase.analytics();
-  </script>
-</head>
+    <script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.2/firebase-firestore.js"></script>
+    </head>
+
 <body>
-  <!-- Insert these scripts at the bottom of the HTML, but before you use any Firebase services -->
 
-  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-  <script src="/__/firebase/8.0.2/firebase-app.js"></script>
+    <div id="paypal-button-container"></div>
 
-  <!-- If you enabled Analytics in your project, add the Firebase SDK for Analytics -->
-  <script src="/__/firebase/8.0.2/firebase-analytics.js"></script>
+    <script>
+      const queryString = window.location.search;
+      const urlParams = new URLSearchParams(queryString);
+      
+        var firebaseConfig = {
+            apiKey: "AIzaSyBp8cvqCVZ9ALRQKOdsqEar6pzQxdCZLdQ",
+            authDomain: "player-latino-f9faa.firebaseapp.com",
+            databaseURL: "https://player-latino-f9faa.firebaseio.com",
+            projectId: "player-latino-f9faa",
+            storageBucket: "player-latino-f9faa.appspot.com",
+            messagingSenderId: "945439559768",
+            appId: "1:945439559768:web:b598d7b2ae444dd694ba2d",
+            measurementId: "G-SG6WBH3EDW"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        firebase.analytics();
 
-  <!-- Add Firebase products that you want to use -->
-  <script src="/__/firebase/8.0.2/firebase-auth.js"></script>
-  <script src="/__/firebase/8.0.2/firebase-firestore.js"></script>
-  <script src="/__/firebase/init.js"></script>
-  <div id="paypal-button-container"></div>
-  
-  <script>
-      function writeUserData(userId, limit, amount) {
-        firebase.database().ref('users/' + userId).set({
-            userId: userId,
-            limit: limit,
-            amount: amount
-        });
+        var addPayment = (device_id, limit, hd) => {
+            firebase.firestore().collection('payments')
+                .add({
+                    device_id,
+                    limit,
+                    hd
+                }).then(pay => console.log('payment added sucessfully :)'))
+                .catch(err => console.log('err :( =>' + err));
         }
-    paypal.Buttons({
-      createOrder: function(data, actions) {
-        // This function sets up the details of the transaction, including the amount and line item details.
-        return actions.order.create({
-          purchase_units: [{
-            amount: {
-              value: '0.01'
+
+        paypal.Buttons({
+            createOrder: function (data, actions) {
+                // This function sets up the details of the transaction, including the amount and line item details.
+                return actions.order.create({
+                    purchase_units: [{
+                        amount: {
+                            value: '0.01'
+                        }
+                    }]
+                });
+            },
+            onApprove: function (data, actions) {
+              var id = urlParams.get('id')
+              var hd = urlParams.get('hd')
+              var limit = urlParams.get('limit')
+                addPayment(id,limit,hd);
+                alert('You have successfully created subscription ' + data.subscriptionID);
             }
-          }]
-        });
-      },
-      onApprove: function(data, actions) {
-        writeUserData("hello","helddod","wowow")
-    alert('You have successfully created subscription ' + data.subscriptionID);
-  }
-    }).render('#paypal-button-container');
-  </script>
+        }).render('#paypal-button-container');
+    </script>
+
 </body>
+
 </html>
