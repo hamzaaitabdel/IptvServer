@@ -27,7 +27,7 @@
     <script>
       const queryString = window.location.search;
       const urlParams = new URLSearchParams(queryString);
-      
+      var toPay=urlParams.get('toPay')
         var firebaseConfig = {
             apiKey: "AIzaSyBp8cvqCVZ9ALRQKOdsqEar6pzQxdCZLdQ",
             authDomain: "player-latino-f9faa.firebaseapp.com",
@@ -42,12 +42,12 @@
         firebase.initializeApp(firebaseConfig);
         firebase.analytics();
 
-        var addPayment = (device_id, limit, hd) => {
+        var addPayment = (device_id, limitHd, limitAds) => {
             firebase.firestore().collection('payments')
                 .add({
                     device_id,
-                    limit,
-                    hd
+                    limitHd,
+                    limitAds
                 }).then(pay => console.log('payment added sucessfully :)'))
                 .catch(err => console.log('err :( =>' + err));
         }
@@ -58,16 +58,15 @@
                 return actions.order.create({
                     purchase_units: [{
                         amount: {
-                            value: '0.01'
+                            value: toPay
                         }
                     }]
                 });
             },
             onApprove: function (data, actions) {
-              var id = urlParams.get('id')
-              var hd = urlParams.get('hd')
-              var limit = urlParams.get('limit')
-                addPayment(id,limit,hd);
+              var limitAds = urlParams.get('limitAds')
+              var limitHd = urlParams.get('limitHd')
+                addPayment(id,limitHd,limitAds);
                 alert('You have successfully created subscription ' + data.subscriptionID);
             }
         }).render('#paypal-button-container');
@@ -75,8 +74,4 @@
 
 </body>
 
-<<<<<<< HEAD
 </html>
-=======
-</html>
->>>>>>> 98568054fcad5212c96b483be886ea2087f1dc52
